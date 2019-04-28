@@ -1,9 +1,3 @@
-//
-//  account.js
-//
-//  Created by LY on 11/10/2018.
-//
-
 let express = require('express');
 let informationDB = require('../models/information_db');
 let router = express.Router();
@@ -22,20 +16,28 @@ router.all('*', function(req, res, next) {
 });
 
 
+informationDB.connect("StudentUnion")
+
 /*
- * @function 根据账户uid获取账户信息
- * @param uid(string) 账户uid
- * @return account(json对象) 账户信息
+ * @function 管理员登录
+ * @param account(string) 账户, password(string) 密码
+ * @return code(int) , mag(string)
  */
-router.get('/account', urlencodedParser, function (req, res, next) {
-	let params = req.query;
-	console.log(params);
-	let collection = informationDB.getCollection("", "ACCOUNT");
-	collection.findOne({ uid: params.uid }, function (err, data) {
+router.post('/account', urlencodedParser, function (req, res, next) {
+	let UserData = {
+		account: req.body.account,
+		password: req.body.password
+	}
+	
+	let accountCollection = informationDB.getCollection("ACCOUNT");
+	accountCollection.findOne({account: UserData.account}, function (err, data) {
 		if (data) {
-			res.status(200).json({
-                account: data
-			});
+			if (UserData.password == data.password){
+				res.status(200).json({ "code": "1" ,"msg": "登陆成功"})
+			}
+			else {
+				res.status(200).json({ "code": "-1" ,"msg": "密码错误"})
+			}
 		}
 		else {
 			res.status(200).json({ "code": "-1" ,"msg": "查无此人"})
@@ -43,3 +45,6 @@ router.get('/account', urlencodedParser, function (req, res, next) {
 
 	});
 });
+
+
+module.exports = router;
