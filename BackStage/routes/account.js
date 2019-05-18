@@ -18,12 +18,34 @@ router.all('*', function(req, res, next) {
 
 informationDB.connect("StudentUnion")
 
+
+//temp add account
+router.post('/account', urlencodedParser, function (req, res, next) {
+	let UserData = {
+		account: req.body.account,
+		password: req.body.password,
+		department: req.body.department
+	}
+	
+	let accountCollection = informationDB.getCollection("ACCOUNT");
+	accountCollection.findOne({account: UserData.account}, function (err, data) {
+		if (!data) {
+			accountCollection.insert(UserData)
+			res.status(200).json({ "code": "1" ,"msg": "添加成功"})
+		}
+		else {
+			res.status(200).json({ "code": "-1" ,"msg": "已有账号"})
+		}
+
+	});
+});
+
 /*
  * @function 管理员登录
  * @param account(string) 账户, password(string) 密码
  * @return code(int) , mag(string)
  */
-router.post('/account', urlencodedParser, function (req, res, next) {
+router.post('/login', urlencodedParser, function (req, res, next) {
 	let UserData = {
 		account: req.body.account,
 		password: req.body.password
@@ -206,9 +228,21 @@ router.get('/sign/searchAll', urlencodedParser, function (req, res, next) {
 
 	let enrollmentCollection = informationDB.getCollection("ENROLLMENT");
 
-	
-	enrollmentCollection.find(params.contant).toArray(function (err, allData) {
-									
+	let condition = ''
+	condition = condition + '{'
+	if(params.FirstExcept != "")
+		condition = condition + '"FirstExcept": ' + '"' + params.FirstExcept + '"'
+	if(params.SecondExcept != "")
+		condition = condition + ',"SecondExcept": ' + '"' + params.SecondExcept + '"'
+	if(params.sex != "")
+		condition = condition + ',"sex": '  + '"' + params.sex + '"'
+	condition = condition + '}'
+
+	// let condition = '{"FirstExcept": "科协技术部","SecondExcept": "1","sex": "1"}'
+	let conditionJson = JSON.parse(condition)
+	console.log(conditionJson)
+
+	enrollmentCollection.find(conditionJson).toArray(function (err, allData) {	
 		if(allData){
 			res.status(200).json({
 				code: 1,
