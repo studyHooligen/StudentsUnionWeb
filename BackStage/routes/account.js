@@ -16,9 +16,6 @@ router.all('*', function(req, res, next) {
 });
 
 
-informationDB.connect("StudentUnion")
-
-
 //temp add account
 router.post('/account', urlencodedParser, function (req, res, next) {
 	let UserData = {
@@ -27,7 +24,7 @@ router.post('/account', urlencodedParser, function (req, res, next) {
 		department: req.body.department
 	}
 	
-	let accountCollection = informationDB.getCollection("ACCOUNT");
+	let accountCollection = informationDB.getCollection("StudentUnion","ACCOUNT");
 	accountCollection.findOne({account: UserData.account}, function (err, data) {
 		if (!data) {
 			accountCollection.insert(UserData)
@@ -40,6 +37,8 @@ router.post('/account', urlencodedParser, function (req, res, next) {
 	});
 });
 
+
+
 /*
  * @function 管理员登录
  * @param account(string) 账户, password(string) 密码
@@ -51,7 +50,7 @@ router.post('/login', urlencodedParser, function (req, res, next) {
 		password: req.body.password
 	}
 	
-	let accountCollection = informationDB.getCollection("ACCOUNT");
+	let accountCollection = informationDB.getCollection("StudentUnion","ACCOUNT");
 	accountCollection.findOne({account: UserData.account}, function (err, data) {
 		if (data) {
 			if (UserData.password == data.password){
@@ -69,6 +68,35 @@ router.post('/login', urlencodedParser, function (req, res, next) {
 });
 
 
+/*
+ * @function 管理员修改密码
+ * @param account(string) 账户, password(string) 密码, newPassword(string) 新密码
+ * @return code(int) , mag(string)
+ */
+router.post('/updatePassword', urlencodedParser, function (req, res, next) {
+	let UserData = {
+		account: req.body.account,
+		password: req.body.password,
+		newPassword: req.body.newPassword
+	}
+	
+	let accountCollection = informationDB.getCollection("StudentUnion","ACCOUNT");
+	accountCollection.findOne({account: UserData.account}, function (err, data) {
+		if (data) {
+			if (UserData.password == data.password){
+				accountCollection.update({account: UserData.account}, {$set:{'password': UserData.newPassword}})
+				res.status(200).json({ "code": "1" ,"msg": "修改成功"})
+			}
+			else {
+				res.status(200).json({ "code": "-1" ,"msg": "密码错误"})
+			}
+		}
+		else {
+			res.status(200).json({ "code": "-1" ,"msg": "查无此人"})
+		}
+
+	});
+});
 
 /*
  * @function 部门信息修改
@@ -88,8 +116,8 @@ router.post('/department', urlencodedParser, function (req, res, next) {
 		qq:         req.body.qq,
 	}
 	
-	let accountCollection = informationDB.getCollection("ACCOUNT");
-	let departmentCollection=informationDB.getCollection("DEPARTMENT");
+	let accountCollection = informationDB.getCollection("StudentUnion","ACCOUNT");
+	let departmentCollection=informationDB.getCollection("StudentUnion","DEPARTMENT");
 
 	console.log(department)
 	accountCollection.findOne({account: department.account}, function (err, accountData) {
@@ -124,7 +152,7 @@ router.post('/department', urlencodedParser, function (req, res, next) {
 router.get('/department', urlencodedParser, function (req, res, next) {
 	let params = req.query;
 
-	let departmentCollection = informationDB.getCollection("DEPARTMENT");
+	let departmentCollection = informationDB.getCollection("StudentUnion","DEPARTMENT");
 	departmentCollection.findOne({name: params.name}, function (err, data) {
 		if(data){
 			res.status(200).json({department: data})
@@ -159,7 +187,7 @@ router.post('/sign', urlencodedParser, function (req, res, next) {
 		SelfIntroduction:   req.body.SelfIntroduction
 	}
 	
-	let enrollmentCollection = informationDB.getCollection("ENROLLMENT");
+	let enrollmentCollection = informationDB.getCollection("StudentUnion","ENROLLMENT");
 	enrollmentCollection.findOne({uid: submitData.uid}, function (err, data) {
 		if (data) {
 			submitData._id = ObjectID(data._id)
@@ -182,7 +210,7 @@ router.post('/sign', urlencodedParser, function (req, res, next) {
 router.get('/sign', urlencodedParser, function (req, res, next) {
 	let params = req.query;
 
-	let enrollmentCollection = informationDB.getCollection("ENROLLMENT");
+	let enrollmentCollection = informationDB.getCollection("StudentUnion","ENROLLMENT");
 
 	let id = params.uid.substring(0,10)
 	let tel = params.uid.substring(11)
@@ -226,7 +254,7 @@ router.get('/sign', urlencodedParser, function (req, res, next) {
 router.get('/sign/searchAll', urlencodedParser, function (req, res, next) {
 	let params = req.query;
 
-	let enrollmentCollection = informationDB.getCollection("ENROLLMENT");
+	let enrollmentCollection = informationDB.getCollection("StudentUnion","ENROLLMENT");
 
 	let condition = ''
 	condition = condition + '{'
@@ -242,7 +270,7 @@ router.get('/sign/searchAll', urlencodedParser, function (req, res, next) {
 	let conditionJson = JSON.parse(condition)
 	console.log(conditionJson)
 
-	enrollmentCollection.find(conditionJson).toArray(function (err, allData) {	
+	enrollmentCollection.find(conditionJson).toArray(function (err, allData) {
 		if(allData){
 			res.status(200).json({
 				code: 1,
