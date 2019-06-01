@@ -10,7 +10,9 @@ var studyRouter = require('./routes/study');
 var app = express();
 
 let informationDB = require('./models/information_db');
-informationDB.connect()
+informationDB.connect();
+//informationDB.connectDB("StudentUnion");
+//informationDB.connectDB("QimingStudy");
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -23,7 +25,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/',accountRouter);
-app.use('/',studyRouter);
+app.use('/QMstudy',studyRouter);
 
 
 // catch 404 and forward to error handler
