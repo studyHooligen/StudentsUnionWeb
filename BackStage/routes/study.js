@@ -29,7 +29,7 @@ router.get('/admin/checkBorrowedBook',urlencodedParser,function(req,res,next){
 
 	BorrowedCollection=informationDB.getCollection('QimingStudy','BORROW');
 
-	resault=BorrowedCollection.find(checkCondition).toArray(function(err,allData){
+	result=BorrowedCollection.find(checkCondition).toArray(function(err,allData){
 		res.status(200).json({
 			data : allData
 		})
@@ -41,9 +41,9 @@ router.get('/checkSingleUser',urlencodedParser,function(req,res,next){
 	BorrowingCollection=informationDB.getCollection('QimingStudy','BORROW');
 	HistoryCollecion=informationDB.getCollection('QimingStudy','HISTORY');
 	
-	resault=AccountCollection.find({uid : req.body.uid});
-	borrowingData=BorrowingCollection.find({'_id' : {'$in' : resault.borrowing} });
-	historyData=HistoryCollecion.find({'_id' : {'$in' : resault.history} });
+	result=AccountCollection.find({uid : req.body.uid});
+	borrowingData=BorrowingCollection.find({'_id' : {'$in' : result.borrowing} });
+	historyData=HistoryCollecion.find({'_id' : {'$in' : result.history} });
 
 	res.status(200).json({
 		'borrowing' : borrowingData,

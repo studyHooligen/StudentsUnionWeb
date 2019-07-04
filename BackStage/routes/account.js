@@ -259,19 +259,21 @@ router.get('/sign/searchAll', urlencodedParser, function (req, res, next) {
 	let condition = ''
 	condition = condition + '{'
 	if(params.FirstExcept != "")
-		condition = condition + '"FirstExcept": ' + '"' + params.FirstExcept + '"'
+		condition = condition + '"FirstExcept": ' + '"' + params.FirstExcept + '",'
 	if(params.SecondExcept != "")
-		condition = condition + ',"SecondExcept": ' + '"' + params.SecondExcept + '"'
+		condition = condition + '"SecondExcept": ' + '"' + params.SecondExcept + '",'
 	if(params.sex != "")
-		condition = condition + ',"sex": '  + '"' + params.sex + '"'
+		condition = condition + '"sex": '  + '"' + params.sex + '",'
+	if(condition != "{")
+		condition = condition.substring(0, condition.lastIndexOf(',')); 
 	condition = condition + '}'
-
-	// let condition = '{"FirstExcept": "科协技术部","SecondExcept": "1","sex": "1"}'
+	console.log(condition);
+	// let condition = '{"FirstExcept": "科协技术部","SecondExcept": "某某部","sex": "1"}'
 	let conditionJson = JSON.parse(condition)
-	console.log(conditionJson)
-
+	console.log(conditionJson);
 	enrollmentCollection.find(conditionJson).toArray(function (err, allData) {
-		if(allData){
+		console.log(allData.length)
+		if(allData.length!=0){
 			res.status(200).json({
 				code: 1,
 				msg:  "查询成功",
@@ -293,3 +295,4 @@ router.get('/sign/searchAll', urlencodedParser, function (req, res, next) {
 
 
 module.exports = router;
+
