@@ -120,6 +120,13 @@ router.post('/department', urlencodedParser, function (req, res, next) {
 	let departmentCollection=informationDB.getCollection("StudentUnion","DEPARTMENT");
 
 	console.log(department)
+	if(!department.account)
+	{
+		res.status(200).json({
+			"code":"-1",
+			"msg":"参数错误"
+		})
+	}
 	accountCollection.findOne({account: department.account}, function (err, accountData) {
 		if(accountData.department != department.name){
 			res.status(200).json({"code":"-1","msg":"你丫不是管这个部门的！"});
