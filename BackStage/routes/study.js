@@ -15,7 +15,11 @@ router.all('*', function(req, res, next) {
 	next();
 });
 
-//测试通过
+/*
+ * @function 查看所有借阅情况
+ * @param borrowTime(string),returnTime(string),continueStatus(bool),place(string),status(bool) 支持条件查询
+ * @return data([array])
+ */
 router.get('/admin/checkBorrowedBook',urlencodedParser,function(req,res,next){
 	let checkCondition={}
 	let cache
@@ -24,34 +28,55 @@ router.get('/admin/checkBorrowedBook',urlencodedParser,function(req,res,next){
 	if(cache=req.body.returnTime) checkCondition.returnTime=JSON.parse(cache);//同上
 	if(cache=req.body.continueStatus) checkCondition.continueStatus=cache;
 	if(cache=req.body.place) checkCondition.place=cache;
-	if(cache=req.body.status) checkCondition.status=cache; 
+	if(cache=req.body.status) checkCondition.status=cache;
 	//console.log(checkCondition);
 
 	BorrowedCollection=informationDB.getCollection('QimingStudy','BORROW');
 
+<<<<<<< HEAD
 	result=BorrowedCollection.find(checkCondition).toArray(function(err,allData){
+=======
+	BorrowedCollection.find(checkCondition).toArray(function(err,allData){
+>>>>>>> 56f3af13703c46ddb128a4443eb03f3d3c48f534
 		res.status(200).json({
 			data : allData
 		})
 	})
 })
 
+/*
+ * @function 查看当个指定用户情况
+ * @param uid(string)
+ * @return data([array])
+ */
 router.get('/checkSingleUser',urlencodedParser,function(req,res,next){
 	AccountCollection=informationDB.getCollection('QimingStudy','ACCOUNT');
 	BorrowingCollection=informationDB.getCollection('QimingStudy','BORROW');
 	HistoryCollecion=informationDB.getCollection('QimingStudy','HISTORY');
 	
+<<<<<<< HEAD
 	result=AccountCollection.find({uid : req.body.uid});
 	borrowingData=BorrowingCollection.find({'_id' : {'$in' : result.borrowing} });
 	historyData=HistoryCollecion.find({'_id' : {'$in' : result.history} });
+=======
+	AccountCollection.findOne({uid : req.body.uid},function(err,userD){
+		borrowingData=BorrowingCollection.find({'_id' : {'$in' : userD.borrowing} }).toArray();
+		historyData=HistoryCollecion.find({'_id' : {'$in' : userD.history} }).toArray();
+>>>>>>> 56f3af13703c46ddb128a4443eb03f3d3c48f534
 
-	res.status(200).json({
-		'borrowing' : borrowingData,
-		'history' : historyData
+		res.status(200).json({
+			'borrowing' : borrowingData,
+			'history' : historyData
 	})
+	});
+	
 })
 
-//测试通过
+/*
+ * @function 用户借书
+ * @param uid(string),bid(string)
+ * @return data([array])
+ */
 router.post('/borrowBook',urlencodedParser,function(req,res,next){
 	//假设前端已完成登录
 	BookCollection=informationDB.getCollection('QimingStudy','BOOKS');
@@ -118,8 +143,12 @@ router.post('/borrowBook',urlencodedParser,function(req,res,next){
 	});
 });
 
-//测试通过
-router.post('/returnBook',urlencodedParser,function(req,res,next){
+/*
+ * @function 用户预约归还图书
+ * @param _id(string)
+ * @return code(int),msg(string)
+ */
+router.post('/admin/returnBook',urlencodedParser,function(req,res,next){
 	BookCollection=informationDB.getCollection('QimingStudy','BOOKS');
 	UserCollection=informationDB.getCollection('QimingStudy','ACCOUNT');
 	BorrowCollection=informationDB.getCollection('QimingStudy','BORROW');
@@ -136,12 +165,16 @@ router.post('/returnBook',urlencodedParser,function(req,res,next){
 	});
 })
 
-//测试通过
+/*
+ * @function 用户续借书籍
+ * @param _id(string),continueTime(int)
+ * @return code(int),msg(string)
+ */
 router.post('/continueBorrow',urlencodedParser,function(req,res,next){
 	BorrowCollection=informationDB.getCollection('QimingStudy','BORROW');
 
 	BorrowCollection.findOne({'_id' : ObjectID(req.body._id)},function(err,cache){
-		if(!cache || cache.continueTime) res.status(200).json({'code' : -1, 'msg' : "Sorry!"});
+		if(!cache && cache.continueTime) res.status(200).json({'code' : -1, 'msg' : "Sorry!"});
 		else {
 			BorrowCollection.update({'_id' : ObjectID(req.body._id)},
 			{'$set' : {
