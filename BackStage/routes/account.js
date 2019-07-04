@@ -114,6 +114,9 @@ router.post('/department', urlencodedParser, function (req, res, next) {
 		phone:      req.body.phone,
 		email:      req.body.email,
 		qq:         req.body.qq,
+		departFunction: req.body.departFunction,
+		activity:   req.body.activity,
+		fullName:   req.body.fullName
 	}
 	
 	let accountCollection = informationDB.getCollection("StudentUnion","ACCOUNT");
