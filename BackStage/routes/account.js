@@ -119,11 +119,12 @@ router.post('/department', urlencodedParser, function (req, res, next) {
 		fullName:   req.body.form.fullName
 	}
 	
+	
+	console.log("/department,post");
+	console.log("para:"+department);
 	let accountCollection = informationDB.getCollection("StudentUnion","ACCOUNT");
 	let departmentCollection=informationDB.getCollection("StudentUnion","DEPARTMENT");
 
-	console.log("/department,post");
-	console.log("para:"+department);
 	if(!department.account)
 	{
 		res.status(200).json({
