@@ -105,21 +105,33 @@ router.post('/updatePassword', urlencodedParser, function (req, res, next) {
  */
 router.post('/department', urlencodedParser, function (req, res, next) {
 	let department = {
-		account:    req.body.account,
-		name:       req.body.name,
-		describe:   req.body.describe,
-		imgs:       req.body.imgs,
-		summary:    req.body.summary,
-		adminName:  req.body.adminName,
-		phone:      req.body.phone,
-		email:      req.body.email,
-		qq:         req.body.qq,
+		account:    req.body.form.account,
+		name:       req.body.form.name,
+		describe:   req.body.form.describe,
+		imgs:       req.body.form.imgs,
+		summary:    req.body.form.summary,
+		adminName:  req.body.form.adminName,
+		phone:      req.body.form.phone,
+		email:      req.body.form.email,
+		qq:         req.body.form.qq,
+		departFunction: req.body.form.departFunction,
+		activity:   req.body.form.activity,
+		fullName:   req.body.form.fullName
 	}
 	
+	
+	console.log("/department,post");
+	console.log("para:"+department);
 	let accountCollection = informationDB.getCollection("StudentUnion","ACCOUNT");
 	let departmentCollection=informationDB.getCollection("StudentUnion","DEPARTMENT");
 
-	console.log(department)
+	if(!department.account)
+	{
+		res.status(200).json({
+			"code":"-1",
+			"msg":"参数错误"
+		})
+	}
 	accountCollection.findOne({account: department.account}, function (err, accountData) {
 		if(accountData.department != department.name){
 			res.status(200).json({"code":"-1","msg":"你丫不是管这个部门的！"});
@@ -151,6 +163,7 @@ router.post('/department', urlencodedParser, function (req, res, next) {
  */
 router.get('/department', urlencodedParser, function (req, res, next) {
 	let params = req.query;
+	console.log("/department,get");
 
 	let departmentCollection = informationDB.getCollection("StudentUnion","DEPARTMENT");
 	departmentCollection.findOne({name: params.name}, function (err, data) {
