@@ -105,18 +105,18 @@ router.post('/updatePassword', urlencodedParser, function (req, res, next) {
  */
 router.post('/department', urlencodedParser, function (req, res, next) {
 	let department = {
-		account:    req.body.account,
-		name:       req.body.name,
-		describe:   req.body.describe,
-		imgs:       req.body.imgs,
-		summary:    req.body.summary,
-		adminName:  req.body.adminName,
-		phone:      req.body.phone,
-		email:      req.body.email,
-		qq:         req.body.qq,
-		departFunction: req.body.departFunction,
-		activity:   req.body.activity,
-		fullName:   req.body.fullName
+		account:    req.body.form.account,
+		name:       req.body.form.name,
+		describe:   req.body.form.describe,
+		imgs:       req.body.form.imgs,
+		summary:    req.body.form.summary,
+		adminName:  req.body.form.adminName,
+		phone:      req.body.form.phone,
+		email:      req.body.form.email,
+		qq:         req.body.form.qq,
+		departFunction: req.body.form.departFunction,
+		activity:   req.body.form.activity,
+		fullName:   req.body.form.fullName
 	}
 	
 	let accountCollection = informationDB.getCollection("StudentUnion","ACCOUNT");
