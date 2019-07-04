@@ -14,7 +14,7 @@ router.all('*', function(req, res, next) {
 	next();
 });
 
-router.get('/qiniutoken', urlencodedParser, async function (req, res, next) {
+router.get('/qiniutoken', urlencodedParser,function (req, res, next) {
   console.log("######")
 var accessKey = "HZgNo42-hq1xyehaiLYdNEnIavCCPWfZfnY_Hele"; var secretKey = "jrYsK224ECDsEVV2mBAAacIP4kOZ8lLJ-ubFbfCt";	
   var putPolicy = {"scope" : "ibike-picture","deadline" : 1605064271};		//SETP 2		
