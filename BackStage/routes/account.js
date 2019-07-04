@@ -104,6 +104,7 @@ router.post('/updatePassword', urlencodedParser, function (req, res, next) {
  * @return code(int) , mag(string)
  */
 router.post('/department', urlencodedParser, function (req, res, next) {
+	console.log("/department,post");
 	let department = {
 		account:    req.body.form.account,
 		name:       req.body.form.name,
