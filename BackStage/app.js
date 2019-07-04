@@ -10,6 +10,7 @@ var studyRouter = require('./routes/study');
 var app = express();
 
 let informationDB = require('./models/information_db');
+let qiNiu = require("./models/qiniu");
 informationDB.connect();
 //informationDB.connectDB("StudentUnion");
 //informationDB.connectDB("QimingStudy");
