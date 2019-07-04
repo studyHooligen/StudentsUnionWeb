@@ -122,7 +122,8 @@ router.post('/department', urlencodedParser, function (req, res, next) {
 	let accountCollection = informationDB.getCollection("StudentUnion","ACCOUNT");
 	let departmentCollection=informationDB.getCollection("StudentUnion","DEPARTMENT");
 
-	console.log(department)
+	console.log("/department,post");
+	console.log("para:"+department);
 	if(!department.account)
 	{
 		res.status(200).json({
@@ -161,6 +162,7 @@ router.post('/department', urlencodedParser, function (req, res, next) {
  */
 router.get('/department', urlencodedParser, function (req, res, next) {
 	let params = req.query;
+	console.log("/department,get");
 
 	let departmentCollection = informationDB.getCollection("StudentUnion","DEPARTMENT");
 	departmentCollection.findOne({name: params.name}, function (err, data) {
