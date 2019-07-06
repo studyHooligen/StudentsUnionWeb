@@ -20,7 +20,7 @@ router.post('/PopupView', urlencodedParser, function (req, res, next) {
 	let PopupView = {
 		name: req.body.name,
         url: req.body.url,
-        img: req.body.url
+        img: req.body.img
 	}
 	
     let popupViewCollection = informationDB.getCollection("pageViewer","popupView");
@@ -68,11 +68,11 @@ router.post('/imgsMap', urlencodedParser, function (req, res, next) {
                 imgs : imgs
             }
             datatemp._id = ObjectID(data._id)
-			popupViewCollection.save(datatemp);
+			imgsMapCollection.save(datatemp);
 			res.status(200).json({ "code": "1" ,"msg": "修改成功"})
 		}
 		else {
-            popupViewCollection.insert(imgs);
+            imgsMapCollection.insert(imgs);
 			res.status(200).json({ "code": "1" ,"msg": "提交成功"})
 		}
     }
@@ -259,7 +259,7 @@ router.delete('/dataCenter', urlencodedParser, function (req, res, next) {
     
 	dataCenterCollection.findOne({index: index}, function (err, data) {
 		if (data) {
-                .remove({index: index});
+            dataCenterCollection.remove({index: index});
 			res.status(200).json({ "code": "1" ,"msg": "删除成功"})
 		}
 		else {
@@ -315,7 +315,7 @@ router.delete('/equityCenter', urlencodedParser, function (req, res, next) {
 
     let equityCenterCollection = informationDB.getCollection("pageViewer","equityCenter");
     
-	equityCenterCollection.findOne({    : index}, function (err, data) {
+	equityCenterCollection.findOne({ index : index}, function (err, data) {
 		if (data) {
             equityCenterCollection.remove({index: index});
 			res.status(200).json({ "code": "1" ,"msg": "删除成功"})

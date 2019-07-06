@@ -5,8 +5,9 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 var accountRouter = require('./routes/account');
+var pageViewer=require('./routes/pageViewer')
 var studyRouter = require('./routes/study');
-let qiNiu = require("./routers/qiniu");
+//let qiNiu = require("./routers/qiniu");
 
 var app = express();
 
@@ -28,7 +29,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/',accountRouter);
 app.use('/QMstudy',studyRouter);
-app.use('/',qiNiu);
+//app.use('/',qiNiu);
+app.use('/',pageViewer);
 
 
 // catch 404 and forward to error handler
