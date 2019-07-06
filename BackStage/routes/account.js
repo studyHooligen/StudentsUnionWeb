@@ -118,6 +118,7 @@ router.post('/department', urlencodedParser, function (req, res, next) {
 		activity:   req.body.activity,
 		fullName:   req.body.fullName
 	}
+	//console.log(req.body)
 	
 	let accountCollection = informationDB.getCollection("StudentUnion","ACCOUNT");
 	let departmentCollection=informationDB.getCollection("StudentUnion","DEPARTMENT");
@@ -128,25 +129,28 @@ router.post('/department', urlencodedParser, function (req, res, next) {
 			"code":"-1",
 			"msg":"参数错误"
 		})
+		return;
 	}
 	accountCollection.findOne({account: department.account}, function (err, accountData) {
-		if(accountData.department != department.name){
-			res.status(200).json({"code":"-1","msg":"你丫不是管这个部门的！"});
-		}
-		else{
-			delete department.account;
-			departmentCollection.findOne({name: department.name}, function (err, departmentData) {
-				if(departmentData){
-					department._id=ObjectID(departmentData._id);
-					departmentCollection.save(department);
-					res.status(200).json({"code":1,"msg":"修改成功"});
-				}
-				else{
-					departmentCollection.insert(department);
-					res.status(200).json({"code":1,"msg":"提交成功"});
-				}
-			})
-		}
+		if(! accountData)
+			res.status(200).json({"code":"-1","msg":"数据库里没有你这个部长！！！"});
+		else if(accountData.name != department.name){
+				res.status(200).json({"code":"-1","msg":"你丫不是管这个部门的！"});
+			}
+			else{
+				//delete department.account;
+				departmentCollection.findOne({name: department.name}, function (err, departmentData) {
+					if(departmentData){
+						department._id=ObjectID(departmentData._id);
+						departmentCollection.save(department);
+						res.status(200).json({"code":1,"msg":"修改成功"});
+					}
+					else{
+						departmentCollection.insert(department);
+						res.status(200).json({"code":1,"msg":"提交成功"});
+					}
+				})
+			}
 		
 	});
 });
@@ -161,6 +165,7 @@ router.post('/department', urlencodedParser, function (req, res, next) {
 router.get('/department', urlencodedParser, function (req, res, next) {
 	let params = req.query;
 	console.log("/department,get");
+	console.log(req.query);
 
 	let departmentCollection = informationDB.getCollection("StudentUnion","DEPARTMENT");
 	departmentCollection.findOne({name: params.name}, function (err, data) {
@@ -191,14 +196,17 @@ router.post('/sign', urlencodedParser, function (req, res, next) {
 		class:              req.body.class,
 		phone:              req.body.phone,
 		uid:                req.body.uid,
+		hobby:   			req.body.hobby,
 		FirstExcept:        req.body.FirstExcept,
 		SecondExcept:       req.body.SecondExcept,
 		AdjustedOrNot:      req.body.AdjustedOrNot,
 		SelfIntroduction:   req.body.SelfIntroduction
 	}
+	console.log(req.body);
 	
 	let enrollmentCollection = informationDB.getCollection("StudentUnion","ENROLLMENT");
 	enrollmentCollection.findOne({uid: submitData.uid}, function (err, data) {
+		console.log(data);
 		if (data) {
 			submitData._id = ObjectID(data._id)
 			enrollmentCollection.save(submitData);
@@ -221,14 +229,11 @@ router.get('/sign', urlencodedParser, function (req, res, next) {
 	let params = req.query;
 
 	let enrollmentCollection = informationDB.getCollection("StudentUnion","ENROLLMENT");
-
-	let id = params.uid.substring(0,10)
-	let tel = params.uid.substring(11)
 	// console.log(id)
 
-	enrollmentCollection.findOne({uid: id}, function (err, data) {
+	enrollmentCollection.findOne({uid: params.uid}, function (err, data) {
 		if(data){
-			if(data.phone.substring(data.phone.length-4) == tel) {
+			if(data.phone==params.phone) {
 				res.status(200).json({
 					code: 1,
 					msg:  "查询成功",
