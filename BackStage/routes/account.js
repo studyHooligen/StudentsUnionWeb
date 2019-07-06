@@ -106,23 +106,19 @@ router.post('/updatePassword', urlencodedParser, function (req, res, next) {
 router.post('/department', urlencodedParser, function (req, res, next) {
 	console.log("/department,post");
 	let department = {
-		account:    req.body.form.account,
-		name:       req.body.form.name,
-		describe:   req.body.form.describe,
-		imgs:       req.body.form.imgs,
-		summary:    req.body.form.summary,
-		adminName:  req.body.form.adminName,
-		phone:      req.body.form.phone,
-		email:      req.body.form.email,
-		qq:         req.body.form.qq,
-		departFunction: req.body.form.departFunction,
-		activity:   req.body.form.activity,
-		fullName:   req.body.form.fullName
+		account:    req.body.account,
+		name:       req.body.name,
+		describe:   req.body.describe,
+		imgs:       req.body.imgs,
+		adminName:  req.body.adminName,
+		phone:      req.body.phone,
+		email:      req.body.email,
+		qq:         req.body.qq,
+		departFunction: req.body.departFunction,
+		activity:   req.body.activity,
+		fullName:   req.body.fullName
 	}
 	
-	
-	console.log("/department,post");
-	console.log("para:"+department);
 	let accountCollection = informationDB.getCollection("StudentUnion","ACCOUNT");
 	let departmentCollection=informationDB.getCollection("StudentUnion","DEPARTMENT");
 
@@ -273,19 +269,21 @@ router.get('/sign/searchAll', urlencodedParser, function (req, res, next) {
 	let condition = ''
 	condition = condition + '{'
 	if(params.FirstExcept != "")
-		condition = condition + '"FirstExcept": ' + '"' + params.FirstExcept + '"'
+		condition = condition + '"FirstExcept": ' + '"' + params.FirstExcept + '",'
 	if(params.SecondExcept != "")
-		condition = condition + ',"SecondExcept": ' + '"' + params.SecondExcept + '"'
+		condition = condition + '"SecondExcept": ' + '"' + params.SecondExcept + '",'
 	if(params.sex != "")
-		condition = condition + ',"sex": '  + '"' + params.sex + '"'
+		condition = condition + '"sex": '  + '"' + params.sex + '",'
+	if(condition != "{")
+		condition = condition.substring(0, condition.lastIndexOf(',')); 
 	condition = condition + '}'
-
-	// let condition = '{"FirstExcept": "科协技术部","SecondExcept": "1","sex": "1"}'
+	console.log(condition);
+	// let condition = '{"FirstExcept": "科协技术部","SecondExcept": "某某部","sex": "1"}'
 	let conditionJson = JSON.parse(condition)
-	console.log(conditionJson)
-
+	console.log(conditionJson);
 	enrollmentCollection.find(conditionJson).toArray(function (err, allData) {
-		if(allData){
+		console.log(allData.length)
+		if(allData.length!=0){
 			res.status(200).json({
 				code: 1,
 				msg:  "查询成功",
@@ -307,3 +305,4 @@ router.get('/sign/searchAll', urlencodedParser, function (req, res, next) {
 
 
 module.exports = router;
+
