@@ -33,11 +33,7 @@ router.get('/admin/checkBorrowedBook',urlencodedParser,function(req,res,next){
 
 	BorrowedCollection=informationDB.getCollection('QimingStudy','BORROW');
 
-<<<<<<< HEAD
-	result=BorrowedCollection.find(checkCondition).toArray(function(err,allData){
-=======
 	BorrowedCollection.find(checkCondition).toArray(function(err,allData){
->>>>>>> 56f3af13703c46ddb128a4443eb03f3d3c48f534
 		res.status(200).json({
 			data : allData
 		})
@@ -54,15 +50,9 @@ router.get('/checkSingleUser',urlencodedParser,function(req,res,next){
 	BorrowingCollection=informationDB.getCollection('QimingStudy','BORROW');
 	HistoryCollecion=informationDB.getCollection('QimingStudy','HISTORY');
 	
-<<<<<<< HEAD
-	result=AccountCollection.find({uid : req.body.uid});
-	borrowingData=BorrowingCollection.find({'_id' : {'$in' : result.borrowing} });
-	historyData=HistoryCollecion.find({'_id' : {'$in' : result.history} });
-=======
 	AccountCollection.findOne({uid : req.body.uid},function(err,userD){
 		borrowingData=BorrowingCollection.find({'_id' : {'$in' : userD.borrowing} }).toArray();
 		historyData=HistoryCollecion.find({'_id' : {'$in' : userD.history} }).toArray();
->>>>>>> 56f3af13703c46ddb128a4443eb03f3d3c48f534
 
 		res.status(200).json({
 			'borrowing' : borrowingData,

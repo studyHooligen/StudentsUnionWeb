@@ -109,7 +109,6 @@ router.post('/department', urlencodedParser, function (req, res, next) {
 		name:       req.body.name,
 		describe:   req.body.describe,
 		imgs:       req.body.imgs,
-		summary:    req.body.summary,
 		adminName:  req.body.adminName,
 		phone:      req.body.phone,
 		email:      req.body.email,
