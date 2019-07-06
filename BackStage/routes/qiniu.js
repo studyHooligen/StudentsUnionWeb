@@ -17,7 +17,7 @@ router.all('*', function(req, res, next) {
 router.get('/qiniutoken', urlencodedParser,function (req, res, next) {
   console.log("######")
 var accessKey = "HZgNo42-hq1xyehaiLYdNEnIavCCPWfZfnY_Hele"; var secretKey = "jrYsK224ECDsEVV2mBAAacIP4kOZ8lLJ-ubFbfCt";	
-  var putPolicy = {"scope" : "ibike-picture","deadline" : 1605064271};		//SETP 2		
+  var putPolicy = {"scope" : "husteicstuimg","deadline" : 1605064271};		//SETP 2		
   var put_policy = JSON.stringify(putPolicy);		
   console && console.log("put_policy = ", put_policy);		//SETP 3		
   var encoded = base64encode(utf16to8(put_policy));		

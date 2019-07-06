@@ -7,15 +7,13 @@ var logger = require('morgan');
 var accountRouter = require('./routes/account');
 var pageViewer=require('./routes/pageViewer')
 var studyRouter = require('./routes/study');
-//let qiNiu = require("./routers/qiniu");
+let qiNiu = require("./routes/qiniu");
 
 var app = express();
 
 let informationDB = require('./models/information_db');
 
 informationDB.connect();
-//informationDB.connectDB("StudentUnion");
-//informationDB.connectDB("QimingStudy");
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -29,7 +27,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/',accountRouter);
 app.use('/QMstudy',studyRouter);
-//app.use('/',qiNiu);
+app.use('/',qiNiu);
 app.use('/',pageViewer);
 
 

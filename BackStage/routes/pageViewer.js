@@ -58,21 +58,22 @@ router.get('/PopupView', urlencodedParser, function (req, res, next) {
 
 //轮播图
 router.post('/imgsMap', urlencodedParser, function (req, res, next) {
+	console.log(req.body)
 	let imgs = req.body.imgs;
 	
     let imgsMapCollection = informationDB.getCollection("pageViewer","imgsMap");
-    
+	
 	imgsMapCollection.findOne({}, function (err, data) {
 		if (data) {
             let datatemp = {
                 imgs : imgs
-            }
+			}
             datatemp._id = ObjectID(data._id)
 			imgsMapCollection.save(datatemp);
 			res.status(200).json({ "code": "1" ,"msg": "修改成功"})
 		}
 		else {
-            imgsMapCollection.insert(imgs);
+            imgsMapCollection.insert({imgs: imgs});
 			res.status(200).json({ "code": "1" ,"msg": "提交成功"})
 		}
     }
@@ -111,7 +112,7 @@ router.post('/message', urlencodedParser, function (req, res, next) {
 	messageCollection.findOne({index: message.index}, function (err, data) {
 		if (data) {
             message._id = ObjectID(data._id)
-			popupViewCollection.save(message);
+			messageCollection.save(message);
 			res.status(200).json({ "code": "1" ,"msg": "修改成功"})
 		}
 		else {
@@ -134,9 +135,9 @@ router.get('/message', urlencodedParser, function (req, res, next) {
 });
 
 //重要消息
-router.delete('/message', urlencodedParser, function (req, res, next) {
+router.post('/message/delete', urlencodedParser, function (req, res, next) {
 
-    let index = req.body.index;
+	let index = req.body.index;
 
     let messageCollection = informationDB.getCollection("pageViewer","message");
 
@@ -160,7 +161,7 @@ router.post('/stars', urlencodedParser, function (req, res, next) {
 		time: req.body.time,
         name: req.body.name,
         content: req.body.content,
-        img: req.body.ing
+        img: req.body.img
 	}
 	
     let starsCollection = informationDB.getCollection("pageViewer","stars");
@@ -192,7 +193,7 @@ router.get('/stars', urlencodedParser, function (req, res, next) {
 });
 
 //每月之星
-router.delete('/stars', urlencodedParser, function (req, res, next) {
+router.post('/stars/delete', urlencodedParser, function (req, res, next) {
 
     let index = req.body.index;
 
@@ -251,7 +252,7 @@ router.get('/dataCenter', urlencodedParser, function (req, res, next) {
 });
 
 //资料中心
-router.delete('/dataCenter', urlencodedParser, function (req, res, next) {
+router.post('/dataCenter/delete', urlencodedParser, function (req, res, next) {
 
     let index = req.body.index;
 
@@ -274,10 +275,10 @@ router.post('/equityCenter', urlencodedParser, function (req, res, next) {
 	let equityCenter = {
         index: req.body.index,
 		time: req.body.time,
-        title: req.body.title,
-        content: req.body.content,
-        speed: req.body.speed,
-        resolvent: req.body.resolvent,
+        brief: req.body.brief	,
+        describe: req.body.describe,
+        process: req.body.process,
+        scheme: req.body.scheme,
 	}
 	
     let equityCenterCollection = informationDB.getCollection("pageViewer","equityCenter");
@@ -309,7 +310,7 @@ router.get('/equityCenter', urlencodedParser, function (req, res, next) {
 });
 
 //权益中心
-router.delete('/equityCenter', urlencodedParser, function (req, res, next) {
+router.post('/equityCenter/delete', urlencodedParser, function (req, res, next) {
 
     let index = req.body.index;
 
@@ -367,7 +368,7 @@ router.get('/imgNews', urlencodedParser, function (req, res, next) {
 });
 
 //图片新闻
-router.delete('/imgNews', urlencodedParser, function (req, res, next) {
+router.post('/imgNews/delete', urlencodedParser, function (req, res, next) {
 
     let index = req.body.index;
 
@@ -445,23 +446,39 @@ router.post('/PsychologyBoard/Reply', urlencodedParser, function (req, res, next
 
 });
 
-// //心理宣泄版
-// router.get('/PsychologyBoard', urlencodedParser, function (req, res, next) {
-//     let params = req.query;
+//心理宣泄版
+router.get('/PsychologyBoard', urlencodedParser, function (req, res, next) {
 
-//     let PsychologyBoardCollection = informationDB.getCollection("pageViewer","PsychologyBoard");
+    let PsychologyBoardCollection = informationDB.getCollection("pageViewer","PsychologyBoard");
 
-// 	PsychologyBoardCollection.findOne({_id: ObjectID(params.id)}, function (err, data) {
-// 		if (data) {
+	PsychologyBoardCollection.find().toArray(function (err, allData) {
+        res.status(200).json({data: allData})
+	})
 
-//             res.status(200).json({ "code": "1" ,data: "提交成功"})
-//         }
-//         else{
-//             res.status(200).json({ "code": "-1" ,"msg": "没有这条消息"})
-//         }
-//     });
+});
 
+//心理宣泄版
+router.get('/PsychologyBoard/getByTag', urlencodedParser, function (req, res, next) {
 
-// });
+	let tag = req.body.tag;
+
+    let PsychologyBoardTagCollection = informationDB.getCollection("pageViewer","PsychologyBoardTag");
+
+	PsychologyBoardTagCollection.findOne({tag: tag}, function (err, tagData) {
+		if (tagData) {
+			let allData = [];
+			for(id in tagData.messages){
+				PsychologyBoardCollection.findOne({_id: ObjectID(id)}, function (err, data) {
+					allData.append(data);
+				});
+			}
+            res.status(200).json({ "code": "1" ,data: allData})
+        }
+        else{
+            res.status(200).json({ "code": "-1" ,"msg": "没有这个tag"})
+        }
+    });
+
+});
 
 module.exports = router;
