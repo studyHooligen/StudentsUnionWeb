@@ -220,7 +220,8 @@ router.post('/dataCenter', urlencodedParser, function (req, res, next) {
         title: req.body.title,
         content: req.body.content,
         url: req.body.url,
-        code: req.body.code,
+		code: req.body.code,
+		tag: req.body.tag
 	}
 	
     let dataCenterCollection = informationDB.getCollection("pageViewer","dataCenter");
@@ -242,10 +243,11 @@ router.post('/dataCenter', urlencodedParser, function (req, res, next) {
 
 //资料中心
 router.get('/dataCenter', urlencodedParser, function (req, res, next) {
+	tag = req.query.tag
 
     let dataCenterCollection = informationDB.getCollection("pageViewer","dataCenter");
 
-	dataCenterCollection.find().toArray(function (err, allData) {
+	dataCenterCollection.find({tag: tag}).toArray(function (err, allData) {
         res.status(200).json({data: allData})
 	})
 
@@ -265,64 +267,6 @@ router.post('/dataCenter/delete', urlencodedParser, function (req, res, next) {
 		}
 		else {
 			res.status(200).json({ "code": "-1" ,"msg": "没有这个资料"})
-		}
-    });
-
-});
-
-//权益中心
-router.post('/equityCenter', urlencodedParser, function (req, res, next) {
-	let equityCenter = {
-        index: req.body.index,
-		time: req.body.time,
-        brief: req.body.brief	,
-        describe: req.body.describe,
-        process: req.body.process,
-        scheme: req.body.scheme,
-	}
-	
-    let equityCenterCollection = informationDB.getCollection("pageViewer","equityCenter");
-    
-	equityCenterCollection.findOne({index: equityCenter.index}, function (err, data) {
-		if (data) {
-            equityCenter._id = ObjectID(data._id)
-			equityCenterCollection.save(equityCenter);
-			res.status(200).json({ "code": "1" ,"msg": "修改成功"})
-		}
-		else {
-            equityCenterCollection.insert(equityCenter);
-			res.status(200).json({ "code": "1" ,"msg": "提交成功"})
-		}
-    }
-    );
-});
-
-
-//权益中心
-router.get('/equityCenter', urlencodedParser, function (req, res, next) {
-
-    let equityCenterCollection = informationDB.getCollection("pageViewer","equityCenter");
-
-	equityCenterCollection.find().toArray(function (err, allData) {
-        res.status(200).json({data: allData})
-	})
-
-});
-
-//权益中心
-router.post('/equityCenter/delete', urlencodedParser, function (req, res, next) {
-
-    let index = req.body.index;
-
-    let equityCenterCollection = informationDB.getCollection("pageViewer","equityCenter");
-    
-	equityCenterCollection.findOne({ index : index}, function (err, data) {
-		if (data) {
-            equityCenterCollection.remove({index: index});
-			res.status(200).json({ "code": "1" ,"msg": "删除成功"})
-		}
-		else {
-			res.status(200).json({ "code": "-1" ,"msg": "没有这条消息"})
 		}
     });
 
@@ -391,8 +335,17 @@ router.post('/PsychologyBoard/send', urlencodedParser, function (req, res, next)
 	let postmessage = {
         content: req.body.content,
         reply: [],
-        tegs: req.body.tags
+		tags: req.body.tags,
+		color: req.body.color,
+		size: req.body.size,
+		index: req.body.index
 	}
+
+	console.log(req.body)
+	postmessage.tags = JSON.parse(postmessage.tags)
+	postmessage.tags = Array.from(new Set(postmessage.tags));
+
+	console.log(postmessage)
 	
     let PsychologyBoardCollection = informationDB.getCollection("pageViewer","PsychologyBoard");
     let PsychologyBoardTagCollection = informationDB.getCollection("pageViewer","PsychologyBoardTag");
@@ -401,25 +354,36 @@ router.post('/PsychologyBoard/send', urlencodedParser, function (req, res, next)
 
 	PsychologyBoardCollection.findOne({}, function (err, data) {
 		if (data) {
-            let messageId = data._id;
-            for(tag in postmessage.tags){
-                PsychologyBoardTagCollection.findOne({tag: tag}, function (err, tagData) {
-                    if(tagData) {
-                        tagData.messages.append(messageId);
-                        PsychologyBoardTagCollection.update({tag: tag}, {$set:{'messages': tagData.messages}})
-                    }
-                    else{
-                        let tagItem = {
-                            tag: tag,
-                            messages: []
-                        }
-                        tagItem.messages.append(messageId);
-                        PsychologyBoardTagCollection.insert(tagItem);
-                    }
-                });
+            for(x in postmessage.tags){
+				(function(x){
+					console.log(postmessage.tags[x])
+					PsychologyBoardTagCollection.findOne({tag: postmessage.tags[x]}, function (err, tagData) {
+						if(tagData) {
+							console.log(tagData)
+							PsychologyBoardCollection.findOne({index: postmessage.index}, function (err, data) {
+								tagData.messages.push(data);
+								PsychologyBoardTagCollection.update({tag: postmessage.tags[x]}, {$set:{'messages': tagData.messages}})
+							});
+						}
+						else{
+							let tagItem = {
+								tag: postmessage.tags[x],
+								messages: []
+							}
+							PsychologyBoardCollection.findOne({index: postmessage.index}, function (err, data) {
+								tagItem.messages.push(data);
+								PsychologyBoardTagCollection.insert(tagItem);
+							});
+						}
+					});
+				}) (x);
             }
             res.status(200).json({ "code": "1" ,"msg": "提交成功"})
 		}
+		else{
+			res.status(200).json({ "code": "-1" ,"msg": "提交失败"})
+		}
+		
     });
 
 });
@@ -428,15 +392,18 @@ router.post('/PsychologyBoard/send', urlencodedParser, function (req, res, next)
 router.post('/PsychologyBoard/Reply', urlencodedParser, function (req, res, next) {
 	let replymessage = {
         content: req.body.content,
-        id: req.body.id
+		index: req.body.index,
+		name: req.body.name
 	}
+
+	console.log(req.body)
 	
     let PsychologyBoardCollection = informationDB.getCollection("pageViewer","PsychologyBoard");
 
-	PsychologyBoardCollection.findOne({_id: ObjectID(replymessage.id)}, function (err, data) {
+	PsychologyBoardCollection.findOne({index: replymessage.index}, function (err, data) {
 		if (data) {
-            data.reply.append(replymessage.content);
-            PsychologyBoardCollection.update({_id: ObjectID(replymessage.id)}, {$set:{'reply': data.reply}})
+			data.reply.push(replymessage)
+            PsychologyBoardCollection.update({index: replymessage.index}, {$set:{'reply': data.reply}})
             res.status(200).json({ "code": "1" ,"msg": "提交成功"})
         }
         else{
@@ -451,7 +418,18 @@ router.get('/PsychologyBoard', urlencodedParser, function (req, res, next) {
 
     let PsychologyBoardCollection = informationDB.getCollection("pageViewer","PsychologyBoard");
 
-	PsychologyBoardCollection.find().toArray(function (err, allData) {
+	PsychologyBoardCollection.find().sort({"_id":-1}).toArray(function (err, allData) {
+        res.status(200).json({data: allData})
+	})
+
+});
+
+//心理宣泄版
+router.get('/PsychologyBoard/getTags', urlencodedParser, function (req, res, next) {
+
+    let PsychologyBoardTagCollection = informationDB.getCollection("pageViewer","PsychologyBoardTag");
+
+	PsychologyBoardTagCollection.find().toArray(function (err, allData) {
         res.status(200).json({data: allData})
 	})
 
@@ -460,25 +438,181 @@ router.get('/PsychologyBoard', urlencodedParser, function (req, res, next) {
 //心理宣泄版
 router.get('/PsychologyBoard/getByTag', urlencodedParser, function (req, res, next) {
 
-	let tag = req.body.tag;
+	let tag = req.query.tag;
 
-    let PsychologyBoardTagCollection = informationDB.getCollection("pageViewer","PsychologyBoardTag");
+	let PsychologyBoardTagCollection = informationDB.getCollection("pageViewer","PsychologyBoardTag");
 
-	PsychologyBoardTagCollection.findOne({tag: tag}, function (err, tagData) {
-		if (tagData) {
-			let allData = [];
-			for(id in tagData.messages){
-				PsychologyBoardCollection.findOne({_id: ObjectID(id)}, function (err, data) {
-					allData.append(data);
-				});
-			}
-            res.status(200).json({ "code": "1" ,data: allData})
-        }
-        else{
-            res.status(200).json({ "code": "-1" ,"msg": "没有这个tag"})
-        }
-    });
+	PsychologyBoardTagCollection.find({tag: tag}).sort({"_id":-1}).toArray(function (err, allData) {
+        res.status(200).json({data: allData})
+	})
 
 });
+
+//权益中心
+router.post('/RightCenter', urlencodedParser, function (req, res, next) {
+	let RightCenter = {
+        name: req.body.name,
+		class: req.body.class,
+		uid: req.body.uid,
+		phone: req.body.phone,
+		email: req.body.email,
+		questionName: req.body.questionName,
+		question: req.body.question,
+		solution: "",
+		tag: '0',
+		commitData: getDate(),
+		tagData: "",
+		solveData: ""
+	}
+	
+	let RightCenterCollection = informationDB.getCollection("pageViewer","RightCenter");
+	
+	RightCenterCollection.insert(RightCenter);
+
+	res.status(200).json({ "code": "1" ,"msg": "提交成功"})
+
+});
+
+//权益中心
+router.get('/RightCenter/myQuestion', urlencodedParser, function (req, res, next) {
+	let params = req.query;
+
+	let RightCenterCollection = informationDB.getCollection("pageViewer","RightCenter");
+
+	RightCenterCollection.find({name: params.name, email: params.email}).toArray(function (err, allData) {
+        res.status(200).json({data: allData})
+	})
+
+});
+
+//权益中心
+router.get('/RightCenter', urlencodedParser, function (req, res, next) {
+	let RightCenterCollection = informationDB.getCollection("pageViewer","RightCenter");
+
+	RightCenterCollection.find({}).toArray(function (err, allData) {
+        res.status(200).json({data: allData})
+	})
+
+});
+
+//权益中心
+router.get('/RightCenter/getByTag', urlencodedParser, function (req, res, next) {
+	let tag = req.query.tag;
+
+	let RightCenterCollection = informationDB.getCollection("pageViewer","RightCenter");
+
+	RightCenterCollection.find({tag: tag}).toArray(function (err, allData) {
+        res.status(200).json({data: allData})
+	})
+
+});
+
+//权益中心
+router.post('/RightCenter/setTag', urlencodedParser, function (req, res, next) {
+	let tag = req.body.tag;
+	let id = req.body.id;
+
+	let RightCenterCollection = informationDB.getCollection("pageViewer","RightCenter");
+
+	RightCenterCollection.findOne({_id: ObjectID(id)}, function (err, data) {
+		if(data) {
+			RightCenterCollection.update({_id: ObjectID(id)}, {$set:{'tag': tag, 'tagData': getDate()}})
+			res.status(200).json({ "code": "1" ,"msg": "修改成功"})
+		}
+		else{
+			res.status(200).json({ "code": "-1" ,"msg": "没有这个问题"})
+		}
+	});
+
+});
+
+
+//权益中心
+router.post('/RightCenter/setSolution', urlencodedParser, function (req, res, next) {
+	let solution = req.body.solution;
+	let id = req.body.id;
+
+	let RightCenterCollection = informationDB.getCollection("pageViewer","RightCenter");
+
+	RightCenterCollection.findOne({_id: ObjectID(id)}, function (err, data) {
+		if(data) {
+			RightCenterCollection.update({_id: ObjectID(id)}, {$set:{'solution': solution, 'solveData': getDate(), 'tag': '2'}})
+			res.status(200).json({ "code": "1" ,"msg": "修改成功"})
+		}
+		else{
+			res.status(200).json({ "code": "-1" ,"msg": "没有这个问题"})
+		}
+	});
+
+});
+
+router.post('/count', urlencodedParser, function (req, res, next) {
+
+	let countCollection = informationDB.getCollection("pageViewer","count");
+	
+	let today = getDate();
+
+	countCollection.findOne({date: today}, function (err, data) {
+		if(data){
+			countCollection.update({_id: ObjectID(data._id)}, {$set:{'count': data.count + 1}})
+			res.status(200).json({count: data.count + 1})
+		}
+		else{
+			let countData = {
+				date: today,
+				count: 1
+			}
+			countCollection.insert(countData)
+			res.status(200).json({count: 1})
+		}
+
+	});
+
+});
+
+router.get('/count', urlencodedParser, function (req, res, next) {
+
+	let countCollection = informationDB.getCollection("pageViewer","count");
+	
+	let today = getDate();
+
+	countCollection.findOne({date: today}, function (err, data) {
+		if(data){
+			res.status(200).json(data)
+		}
+		else{
+			res.status(200).json({count: 0, date: today})
+		}
+
+	});
+
+});
+
+router.get('/Allcount', urlencodedParser, function (req, res, next) {
+
+	let countCollection = informationDB.getCollection("pageViewer","count");
+
+	countCollection.find().toArray(function (err, allData) {
+        res.status(200).json({data: allData})
+	})
+
+});
+
+
+function getDate() {
+	var date = new Date();
+	var seperator1 = "-";
+	var year = date.getFullYear();
+	var month = date.getMonth() + 1;
+	var strDate = date.getDate();
+	if (month >= 1 && month <= 9) {
+		month = "0" + month;
+	}
+	if (strDate >= 0 && strDate <= 9) {
+		strDate = "0" + strDate;
+	}
+	var currentdate = year + seperator1 + month + seperator1 + strDate;
+	return currentdate;
+}
 
 module.exports = router;

@@ -21,7 +21,6 @@ router.post('/account', urlencodedParser, function (req, res, next) {
 	let UserData = {
 		account: req.body.account,
 		password: req.body.password,
-		department: req.body.department
 	}
 	
 	let accountCollection = informationDB.getCollection("StudentUnion","ACCOUNT");
@@ -104,13 +103,11 @@ router.post('/updatePassword', urlencodedParser, function (req, res, next) {
  * @return code(int) , mag(string)
  */
 router.post('/department', urlencodedParser, function (req, res, next) {
-	console.log("/department,post");
 	let department = {
-		account:    req.body.account,
+		account: req.body.account,
 		name:       req.body.name,
 		describe:   req.body.describe,
 		imgs:       req.body.imgs,
-		adminName:  req.body.adminName,
 		phone:      req.body.phone,
 		email:      req.body.email,
 		qq:         req.body.qq,
@@ -118,41 +115,23 @@ router.post('/department', urlencodedParser, function (req, res, next) {
 		activity:   req.body.activity,
 		fullName:   req.body.fullName
 	}
-	//console.log(req.body)
-	
-	let accountCollection = informationDB.getCollection("StudentUnion","ACCOUNT");
+	console.log(req.body)
+	department.imgs = JSON.parse(department.imgs)
+	console.log(req.body)
+
 	let departmentCollection=informationDB.getCollection("StudentUnion","DEPARTMENT");
 
-	if(!department.account)
-	{
-		res.status(200).json({
-			"code":"-1",
-			"msg":"参数错误"
-		})
-		return;
-	}
-	accountCollection.findOne({account: department.account}, function (err, accountData) {
-		if(! accountData)
-			res.status(200).json({"code":"-1","msg":"数据库里没有你这个部长！！！"});
-		else if(accountData.name != department.name){
-				res.status(200).json({"code":"-1","msg":"你丫不是管这个部门的！"});
-			}
-			else{
-				//delete department.account;
-				departmentCollection.findOne({name: department.name}, function (err, departmentData) {
-					if(departmentData){
-						department._id=ObjectID(departmentData._id);
-						departmentCollection.save(department);
-						res.status(200).json({"code":1,"msg":"修改成功"});
-					}
-					else{
-						departmentCollection.insert(department);
-						res.status(200).json({"code":1,"msg":"提交成功"});
-					}
-				})
-			}
-		
-	});
+	departmentCollection.findOne({name: department.name}, function (err, departmentData) {
+		if(departmentData){
+			department._id=ObjectID(departmentData._id);
+			departmentCollection.save(department);
+			res.status(200).json({"code":1,"msg":"修改成功"});
+		}
+		else{
+			departmentCollection.insert(department);
+			res.status(200).json({"code":1,"msg":"提交成功"});
+		}
+	})
 });
 
 
@@ -164,8 +143,6 @@ router.post('/department', urlencodedParser, function (req, res, next) {
  */
 router.get('/department', urlencodedParser, function (req, res, next) {
 	let params = req.query;
-	console.log("/department,get");
-	console.log(req.query);
 
 	let departmentCollection = informationDB.getCollection("StudentUnion","DEPARTMENT");
 	departmentCollection.findOne({name: params.name}, function (err, data) {
@@ -177,9 +154,30 @@ router.get('/department', urlencodedParser, function (req, res, next) {
 		}
 
 	});
-
 });
 
+
+router.get('/Alldepartment', urlencodedParser, function (req, res, next) {
+
+	let departmentCollection = informationDB.getCollection("StudentUnion","DEPARTMENT");
+	departmentCollection.find().sort({"name":-1}).toArray(function (err, allData) {
+		if(allData.length!=0){
+			res.status(200).json({
+				code: 1,
+				msg:  "查询成功",
+				data: allData
+			});
+		}
+		else{
+			res.status(200).json({
+				code:  -1,
+				msg:   "没有部门",
+				data:  []
+			})
+		}
+
+	})
+});
 
 
 /*
@@ -191,6 +189,7 @@ router.get('/department', urlencodedParser, function (req, res, next) {
  */
 router.post('/sign', urlencodedParser, function (req, res, next) {
 	let submitData = {
+		img:				req.body.img,
 		name:               req.body.name,
 		sex:                req.body.sex,
 		class:              req.body.class,
@@ -271,22 +270,22 @@ router.get('/sign/searchAll', urlencodedParser, function (req, res, next) {
 
 	let enrollmentCollection = informationDB.getCollection("StudentUnion","ENROLLMENT");
 
-	let condition = ''
-	condition = condition + '{'
-	if(params.FirstExcept != "")
-		condition = condition + '"FirstExcept": ' + '"' + params.FirstExcept + '",'
-	if(params.SecondExcept != "")
-		condition = condition + '"SecondExcept": ' + '"' + params.SecondExcept + '",'
-	if(params.sex != "")
-		condition = condition + '"sex": '  + '"' + params.sex + '",'
-	if(condition != "{")
-		condition = condition.substring(0, condition.lastIndexOf(',')); 
-	condition = condition + '}'
-	console.log(condition);
-	// let condition = '{"FirstExcept": "科协技术部","SecondExcept": "某某部","sex": "1"}'
-	let conditionJson = JSON.parse(condition)
-	console.log(conditionJson);
-	enrollmentCollection.find(conditionJson).toArray(function (err, allData) {
+	// let condition = ''
+	// condition = condition + '{'
+	// if(params.FirstExcept != "")
+	// 	condition = condition + '"FirstExcept": ' + '"' + params.FirstExcept + '",'
+	// if(params.SecondExcept != "")
+	// 	condition = condition + '"SecondExcept": ' + '"' + params.SecondExcept + '",'
+	// if(params.sex != "")
+	// 	condition = condition + '"sex": '  + '"' + params.sex + '",'
+	// if(condition != "{")
+	// 	condition = condition.substring(0, condition.lastIndexOf(',')); 
+	// condition = condition + '}'
+	// console.log(condition);
+	// // let condition = '{"FirstExcept": "科协技术部","SecondExcept": "某某部","sex": "1"}'
+	// let conditionJson = JSON.parse(condition)
+	// console.log(conditionJson);
+	enrollmentCollection.find().toArray(function (err, allData) {
 		console.log(allData.length)
 		if(allData.length!=0){
 			res.status(200).json({

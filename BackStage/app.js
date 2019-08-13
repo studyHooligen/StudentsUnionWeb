@@ -8,6 +8,7 @@ var accountRouter = require('./routes/account');
 var pageViewer=require('./routes/pageViewer')
 var studyRouter = require('./routes/study');
 let qiNiu = require("./routes/qiniu");
+let excel = require("./routes/excel");
 
 var app = express();
 
@@ -29,6 +30,7 @@ app.use('/',accountRouter);
 app.use('/QMstudy',studyRouter);
 app.use('/',qiNiu);
 app.use('/',pageViewer);
+app.use('/',excel);
 
 
 // catch 404 and forward to error handler
