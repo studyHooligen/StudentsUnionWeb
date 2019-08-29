@@ -199,7 +199,8 @@ router.post('/sign', urlencodedParser, function (req, res, next) {
 		FirstExcept:        req.body.FirstExcept,
 		SecondExcept:       req.body.SecondExcept,
 		AdjustedOrNot:      req.body.AdjustedOrNot,
-		SelfIntroduction:   req.body.SelfIntroduction
+		SelfIntroduction:   req.body.SelfIntroduction,
+		city:				req.body.city
 	}
 	console.log(req.body);
 	

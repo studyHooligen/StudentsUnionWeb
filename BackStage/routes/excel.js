@@ -18,9 +18,9 @@ router.all('*', function(req, res, next) {
 
 router.get('/download/excel', urlencodedParser, function (req, res, next) {
 
-    var datas = [];
-    var cols = ['照片', '姓名', '学号', '性别', '班级', '电话', '第一志愿', '第二志愿', '是否服从调剂', '自我介绍', '爱好'];
-    datas.push(cols)
+    let datas = [];
+    let cols = ['照片', '姓名', '学号', '性别', '班级', '电话', '第一志愿', '第二志愿', '是否服从调剂', '自我介绍', '爱好'];
+    datas.push(cols);
     
 	let enrollmentCollection = informationDB.getCollection("StudentUnion","ENROLLMENT");
 	enrollmentCollection.find().toArray(function (err, allData) {
@@ -38,6 +38,8 @@ router.get('/download/excel', urlencodedParser, function (req, res, next) {
         }
 
         var buffer = xlsx.build([{name: "学生会招新名单", data: datas}]);
+
+
         fs.writeFileSync('/root/front-end/static/excel/students.xlsx', buffer, 'binary');
 
         
