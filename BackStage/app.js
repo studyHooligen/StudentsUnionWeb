@@ -9,6 +9,7 @@ var pageViewer=require('./routes/pageViewer')
 var studyRouter = require('./routes/study');
 let qiNiu = require("./routes/qiniu");
 let excel = require("./routes/excel");
+let garbage = require("./routes/garbage");
 
 var app = express();
 
@@ -31,6 +32,7 @@ app.use('/QMstudy',studyRouter);
 app.use('/',qiNiu);
 app.use('/',pageViewer);
 app.use('/',excel);
+app.use('/',garbage);
 
 
 // catch 404 and forward to error handler
