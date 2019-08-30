@@ -11,8 +11,8 @@ var https = require('https');
 var fs = require('fs');
 
 const https_config = {
-  key: fs.readFileSync('/root/StudentsUnionWeb/2456841_husteicstu.cn.key', 'utf8'),
-  cert: fs.readFileSync('/root/StudentsUnionWeb/2456841_husteicstu.cn.pem', 'utf8')
+  key: fs.readFileSync('../2456841_husteicstu.cn.key', 'utf8'),
+  cert: fs.readFileSync('../2456841_husteicstu.cn.pem', 'utf8')
 }
 
 /**

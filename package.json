@@ -1,0 +1,20 @@
+{
+  "name": "StudentsUnionWeb",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gangsterHK/StudentsUnionWeb.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gangsterHK/StudentsUnionWeb/issues"
+  },
+  "homepage": "https://github.com/gangsterHK/StudentsUnionWeb#readme"
+}

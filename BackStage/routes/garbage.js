@@ -15,9 +15,12 @@ router.all('*', function(req, res, next) {
 	next();
 });
 
-router.get('/garbageSort/sort', urlencodedParser, function (req, res, next) {
+router.get('/garbageSort', urlencodedParser, function (req, res, next) {
     let garbageName = req.body.garbagename;
+    console.log(garbageName);
     let garbageCollection = informationDB.getCollection("GARBAGESORT","garbageData");
+    let garbageUnkownCollection = informationDB.getCollection("GARBAGESORT","garbageUnknown");
+    
 
     garbageCollection.findOne({name : garbageName},function(err,data){
         if(data)
@@ -29,6 +32,7 @@ router.get('/garbageSort/sort', urlencodedParser, function (req, res, next) {
             });
         }
         else{
+            garbageUnkownCollection.insert({name : garbageName});
             res.status(200).json({
                 code:   -1,
                 garbage:    null,
