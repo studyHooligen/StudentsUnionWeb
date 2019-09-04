@@ -262,6 +262,45 @@ router.get('/sign', urlencodedParser, function (req, res, next) {
 });
 
 /*
+ * @function 条件查询大家提交的信息个数
+ * @param key查询的字段名字
+ * @return {"key":value}返回相应字段的数量
+ */
+router.get('/condCount',urlencodedParser,function(req,res,nest){
+	// let colData = ["sex","class","FirstExcept","SecondExcept","AdjustedOrNot","city"];
+	let col =req.body.colName;
+	if(!col)
+	{
+		res.status(200).json({
+			code: -1,
+			msg: "None colName",
+			data: null
+		});
+		return;
+	}
+
+	let enrollmentCollection = informationDB.getCollection("StudentUnion","ENROLLMENT");
+	// let aggreData={};
+
+	//for(i1=0; i1<colData.length; i1++){
+	
+		enrollmentCollection.aggregate([
+			{$group : {_id : ("$"+String(col)), whole: {$sum : 1} } }
+		]).toArray(function(err,allData){
+			console.log(allData);
+			// aggreData[(colData[0])]=allData;
+			// continue;
+			res.status(200).json({
+				data : allData
+			});
+		});
+	// }
+
+	// res.status(200).json(aggreData);
+});
+
+
+/*
  * @function 查询大家提交的信息
  * @param FirstExcept(string)第一志愿，SecondExcept(string)第二志愿，sex(bool)性别
  * @return code(int)状态码，msg(string)提示信息,data([json])详细数据

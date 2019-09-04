@@ -5,7 +5,7 @@ let MongoDB = require('mongodb');
 let MongoClient = MongoDB.MongoClient;
 
 let client;
-let db;
+let database;
 
 exports.connect = function(){
     MongoClient.connect(ConfigSet.DATABASE_URL,{useNewUrlParser:true}, (err, tempClient) => {
@@ -19,6 +19,6 @@ exports.connect = function(){
 
 
 exports.getCollection = function(DATABASE_NAME,COLLECTION_NAME){
-    db = client.db(DATABASE_NAME);
-    return db.collection(COLLECTION_NAME);
+    database = client.db(DATABASE_NAME);
+    return database.collection(COLLECTION_NAME);
 };
