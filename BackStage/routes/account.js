@@ -2,6 +2,7 @@ let express = require('express');
 let informationDB = require('../models/information_db');
 let router = express.Router();
 let bodyParser = require('body-parser');
+let co=require('co');
 let urlencodedParser = bodyParser.urlencoded({ extended: false });
 var ObjectID = require('mongodb').ObjectID;
 
@@ -266,8 +267,9 @@ router.get('/sign', urlencodedParser, function (req, res, next) {
  * @param key查询的字段名字
  * @return {"key":value}返回相应字段的数量
  */
-router.get('/condCount',urlencodedParser,function(req,res,nest){
-	// let colData = ["sex","class","FirstExcept","SecondExcept","AdjustedOrNot","city"];
+router.get('/condCount',urlencodedParser, function(req,res,nest){
+
+	let colData = ["sex","class","FirstExcept","SecondExcept","AdjustedOrNot","city"];
 	let col =req.body.colName;
 	if(!col)
 	{
@@ -280,25 +282,46 @@ router.get('/condCount',urlencodedParser,function(req,res,nest){
 	}
 
 	let enrollmentCollection = informationDB.getCollection("StudentUnion","ENROLLMENT");
-	// let aggreData={};
-
-	//for(i1=0; i1<colData.length; i1++){
+	var aggreData={
+		sex:                null,
+		class:              null,
+		FirstExcept:        null,
+		SecondExcept:		null,
+		AdjustedOrNot:      null,
+		city:				null
+	};
 	
-		enrollmentCollection.aggregate([
-			{$group : {_id : ("$"+String(col)), whole: {$sum : 1} } }
-		]).toArray(function(err,allData){
-			console.log(allData);
-			// aggreData[(colData[0])]=allData;
-			// continue;
-			res.status(200).json({
-				data : allData
+		for(i1=0; i1<colData.length; i1++){
+			enrollmentCollection.aggregate([
+				{$group : {_id : ("$"+colData[i1]), whole: {$sum : 1} } }
+			]).toArray(function(err,allData){
+				aggreData[(colData[i1])]=allData;
+				console.log(aggreData);
 			});
-		});
-	// }
+		};
 
-	// res.status(200).json(aggreData);
+	console.log(aggreData);
+	res.status(200).json(aggreData);
 });
 
+// router.post('/uploadfile', function (req, res) {
+// 	    upload(req, res, function (err) {
+// 	        if (err) {
+// 	            return res.end("Error uploading file.");
+// 	        }
+// 	        (function iterator(index) {
+// 	            if(index === req.files.length) {
+// 	                return;
+// 	            }
+// 	            fs.stat('./', req.files[index].originalname,function (err, stats) {
+// 	                // do something
+// 	                console.log(index);
+// 	                iterator(index + 1);
+// 	            })
+// 	        })
+// 	        res.end("File is uploaded");
+// 	    });
+// 	});
 
 /*
  * @function 查询大家提交的信息
